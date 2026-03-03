@@ -7,6 +7,8 @@ import {
   HistoryIcon,
   CreditCardIcon,
   FolderOpenIcon,
+  WorkflowIcon,
+  ChevronRightIcon,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,8 +24,20 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarGroupContent,
+  SidebarMenuAction,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
+import { useSuspenseProjects } from "@/features/projects/hooks/useProjects";
+import { Suspense } from "react";
+import { LoadingView } from "./BaseComponents";
 //import { useQueryClient } from "@tanstack/react-query";
 
 const MENU_ITEMS: {
@@ -61,36 +75,25 @@ export const AppSidebar = () => {
         </SidebarMenuItem>
       </SidebarHeader>
       <SidebarContent>
-        {MENU_ITEMS.map((group) => (
-          <SidebarGroup key={group.title}>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const isActive =
-                    item.url === "/"
-                      ? pathname === "/"
-                      : pathname.startsWith(item.url);
-
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        tooltip={item.title}
-                        className="gap-x-4 h-10 px-4"
-                      >
-                        <Link href={item.url} prefetch>
-                          <item.icon className="size-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <SidebarGroup>
+          <Collapsible defaultOpen>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip={"Projects"}>
+                <Link
+                  href="/projects"
+                  prefetch
+                  className="flex flex-row gap-2 items-center"
+                >
+                  <WorkflowIcon className="size-4" />
+                  <span>Projects</span>
+                </Link>
+              </SidebarMenuButton>
+              {/* <Suspense fallback={<LoadingView />}> */}
+              <ProjectsNavigation />
+              {/* </Suspense> */}
+            </SidebarMenuItem>
+          </Collapsible>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -116,4 +119,32 @@ export const AppSidebar = () => {
       </SidebarFooter>
     </Sidebar>
   );
+};
+
+export const ProjectsNavigation = () => {
+  const projects = useSuspenseProjects();
+
+  return projects.data.length ? (
+    <>
+      <CollapsibleTrigger asChild>
+        <SidebarMenuAction className="data-[state=open]:rotate-90">
+          <ChevronRightIcon />
+          <span className="sr-only">Toggle</span>
+        </SidebarMenuAction>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <SidebarMenuSub>
+          {projects.data.map((subItem) => (
+            <SidebarMenuSubItem key={subItem.id}>
+              <SidebarMenuSubButton asChild>
+                <Link href={`/projects/${subItem.id}`} prefetch>
+                  <span>{subItem.name}</span>
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          ))}
+        </SidebarMenuSub>
+      </CollapsibleContent>
+    </>
+  ) : null;
 };
