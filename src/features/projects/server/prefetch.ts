@@ -10,9 +10,3 @@ export const prefetchProject = (projectId: string) => {
 export const prefetchProjects = () => {
   return prefetch(trpc.projects.getProjects.queryOptions());
 };
-
-export const prefetchProjectStakeholders = (projectId: string) => {
-  return prefetch(
-    trpc.projects.getProjectStakeholders.queryOptions({ projectId }),
-  );
-};

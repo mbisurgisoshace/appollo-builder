@@ -1,10 +1,6 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import {
-  prefetchProject,
-  prefetchProjectStakeholders,
-} from "@/features/projects/server/prefetch";
 import { HydrateClient } from "@/trpc/server";
 import { requireAuth } from "@/lib/auth-utils";
 import {
@@ -13,6 +9,7 @@ import {
   ProjectHeader,
   ProjectLoading,
 } from "@/features/projects/components/Project";
+import { prefetchProject } from "@/features/projects/server/prefetch";
 
 interface PageProps {
   params: Promise<{
@@ -26,7 +23,6 @@ export default async function ProjectPage({ params }: PageProps) {
   const { projectId } = await params;
 
   prefetchProject(projectId);
-  prefetchProjectStakeholders(projectId);
 
   return (
     <HydrateClient>
