@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { ROLE_OPTIONS } from "@/config/constants";
 import { StakeHolderNodeData } from "./StakeholderNode";
 import { MultiSelect } from "@/components/ui/multiselect";
+import { TagSelector } from "../components/TagSelector";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -46,6 +47,7 @@ const formSchema = z.object({
       "Only lowercase letters, numbers, and hyphens allowed",
     ),
   role: z.string().min(1, { message: "Role is required" }),
+  tags: z.string().optional(),
 });
 
 export type FormType = z.infer<typeof formSchema>;
@@ -70,6 +72,7 @@ export const StakeholderDialog = ({
       name: defaultData.name || "",
       slug: defaultData.slug || "",
       role: defaultData.role || "",
+      tags: defaultData.tags || "",
     },
     resolver: zodResolver(formSchema),
   });
@@ -86,6 +89,7 @@ export const StakeholderDialog = ({
         name: defaultData.name || "",
         slug: defaultData.slug || "",
         role: defaultData.role || "",
+        tags: defaultData.tags || "",
       });
       reset();
     }
@@ -194,6 +198,23 @@ export const StakeholderDialog = ({
                       options={ROLE_OPTIONS}
                       onChange={field.onChange}
                       placeholder="Select roles"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="tags"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <TagSelector
+                      value={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />

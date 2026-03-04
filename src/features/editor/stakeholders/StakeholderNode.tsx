@@ -14,7 +14,6 @@ import { useUpsertNode } from "@/features/editor/hooks/useEditor";
 
 export type StakeHolderNodeData = {
   name?: string;
-  slug?: string;
   role?: string;
 } & BaseNodeData;
 
@@ -41,6 +40,7 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
               name: values.name,
               role: values.role,
               slug: values.slug,
+              tags: values.tags,
             },
           };
         }
@@ -53,7 +53,7 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
       slug: values.slug,
       type: NodeType.STAKEHOLDER,
       projectId: params.projectId,
-      data: { name: values.name, role: values.role },
+      data: { name: values.name, role: values.role, tags: values.tags },
       position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
     });
   };

@@ -98,7 +98,7 @@ export function MultiSelect({
   className,
   maxBadges = 3,
   onCreateOption,
-  creatable = true,
+  creatable = false,
   showSearch = true,
   placeholder = "Select option...",
   emptySearchLabel = "No results found",

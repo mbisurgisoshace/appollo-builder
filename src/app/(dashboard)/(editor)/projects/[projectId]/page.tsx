@@ -4,11 +4,12 @@ import { ErrorBoundary } from "react-error-boundary";
 import { HydrateClient } from "@/trpc/server";
 import { requireAuth } from "@/lib/auth-utils";
 import {
-  ProjectContent,
   ProjectError,
   ProjectHeader,
   ProjectLoading,
+  ProjectContent,
 } from "@/features/projects/components/Project";
+import { prefetchTags } from "@/features/editor/server/prefetch";
 import { prefetchProject } from "@/features/projects/server/prefetch";
 
 interface PageProps {
@@ -22,6 +23,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
   const { projectId } = await params;
 
+  prefetchTags();
   prefetchProject(projectId);
 
   return (

@@ -10,8 +10,8 @@ import { BaseNode } from "@/components/react-flow/base-node";
 import { useDeleteNode } from "@/features/editor/hooks/useEditor";
 
 export type BaseNodeData = {
-  slugs: string[];
-  features: string[];
+  slug?: string;
+  tags?: string;
 };
 
 interface BaseCanvasNodeProps extends NodeProps {

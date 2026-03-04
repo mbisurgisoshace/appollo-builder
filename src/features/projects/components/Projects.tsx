@@ -73,8 +73,6 @@ export const NewProjectButton = () => {
   });
 
   const handleSubmit = (values: FormType) => {
-    console.log("values", values);
-
     createProject.mutate(values, {
       onError: (error) => {},
       onSuccess: (data) => {
