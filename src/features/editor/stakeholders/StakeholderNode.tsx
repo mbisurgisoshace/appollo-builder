@@ -35,7 +35,7 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
               ...node.data,
               name: values.name,
               slug: values.slug,
-              role: values.role,
+              //role: values.role,
             },
           };
         }
