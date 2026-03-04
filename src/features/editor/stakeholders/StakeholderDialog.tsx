@@ -20,29 +20,19 @@ import {
   DialogTitle,
   DialogHeader,
   DialogFooter,
-  DialogTrigger,
   DialogContent,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { StakeHolderNodeData } from "./StakeholderNode";
-import { useCheckNodeSlugAvailability } from "@/features/projects/hooks/useProjects";
+import { cn } from "@/lib/utils";
 import {
   SlugStatusIcon,
   useSlugAvailability,
 } from "../hooks/useSlugAvailability";
-import { cn } from "@/lib/utils";
-import { MultiSelect } from "@/components/ui/multiselect";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { ROLE_OPTIONS } from "@/config/constants";
+import { StakeHolderNodeData } from "./StakeholderNode";
+import { MultiSelect } from "@/components/ui/multiselect";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
