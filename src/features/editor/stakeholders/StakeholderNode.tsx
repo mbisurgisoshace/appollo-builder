@@ -10,7 +10,7 @@ import {
 import { NodeType } from "@/generated/prisma/enums";
 import { BaseCanvasNode, BaseNodeData } from "../BaseCanvasNode";
 import { FormType, StakeholderDialog } from "./StakeholderDialog";
-import { useUpsertNode } from "@/features/projects/hooks/useProjects";
+import { useUpsertNode } from "@/features/editor/hooks/useEditor";
 
 export type StakeHolderNodeData = {
   name?: string;
@@ -39,6 +39,7 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
             data: {
               ...node.data,
               name: values.name,
+              role: values.role,
               slug: values.slug,
             },
           };
@@ -52,8 +53,8 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
       slug: values.slug,
       type: NodeType.STAKEHOLDER,
       projectId: params.projectId,
+      data: { name: values.name, role: values.role },
       position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
-      data: { name: values.name },
     });
   };
 

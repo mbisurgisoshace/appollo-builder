@@ -1,13 +1,13 @@
 "use client";
 
-import Image from "next/image";
+import { useParams } from "next/navigation";
 import { memo, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { type NodeProps, Position, useReactFlow } from "@xyflow/react";
-import { useDeleteNode } from "@/features/projects/hooks/useProjects";
 
 import { ProjectNode } from "./ProjectNode";
 import { BaseNode } from "@/components/react-flow/base-node";
+import { useDeleteNode } from "@/features/editor/hooks/useEditor";
 
 export type BaseNodeData = {
   slugs: string[];
@@ -35,15 +35,14 @@ export const BaseCanvasNode = memo(
   }: BaseCanvasNodeProps) => {
     const { setNodes, setEdges } = useReactFlow();
     const { mutate: deleteNode } = useDeleteNode();
+    const params = useParams<{ projectId: string }>();
 
     const handleDelete = () => {
       setNodes((currentNodes) => currentNodes.filter((node) => node.id !== id));
       setEdges((currentEdges) =>
-        currentEdges.filter(
-          (edge) => edge.source !== id && edge.target !== id,
-        ),
+        currentEdges.filter((edge) => edge.source !== id && edge.target !== id),
       );
-      deleteNode({ id });
+      deleteNode({ id, projectId: params.projectId });
     };
 
     return (

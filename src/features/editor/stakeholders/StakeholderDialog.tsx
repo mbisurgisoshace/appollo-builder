@@ -41,6 +41,8 @@ import {
   useSlugAvailability,
 } from "../hooks/useSlugAvailability";
 import { cn } from "@/lib/utils";
+import { MultiSelect } from "@/components/ui/multiselect";
+import { ROLE_OPTIONS } from "@/config/constants";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -53,7 +55,7 @@ const formSchema = z.object({
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       "Only lowercase letters, numbers, and hyphens allowed",
     ),
-  //role: z.string().min(1, { message: "Role is required" }),
+  role: z.string().min(1, { message: "Role is required" }),
 });
 
 export type FormType = z.infer<typeof formSchema>;
@@ -77,7 +79,7 @@ export const StakeholderDialog = ({
     defaultValues: {
       name: defaultData.name || "",
       slug: defaultData.slug || "",
-      //role: defaultData.role || "",
+      role: defaultData.role || "",
     },
     resolver: zodResolver(formSchema),
   });
@@ -93,15 +95,13 @@ export const StakeholderDialog = ({
       form.reset({
         name: defaultData.name || "",
         slug: defaultData.slug || "",
-        //role: defaultData.role || "",
+        role: defaultData.role || "",
       });
       reset();
     }
   }, [open]);
 
   const handleSubmit = async (values: FormType) => {
-    console.log("isCheckingSlug", isCheckingSlug);
-
     if (isCheckingSlug) return;
 
     if (slugStatus === "idle" && values.slug !== defaultData.slug) {
@@ -192,36 +192,24 @@ export const StakeholderDialog = ({
               )}
             />
 
-            {/* <FormField
-              name="method"
+            <FormField
+              name="role"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Method</FormLabel>
-                  <Select
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a method" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="GET">GET</SelectItem>
-                      <SelectItem value="POST">POST</SelectItem>
-                      <SelectItem value="PUT">PUT</SelectItem>
-                      <SelectItem value="PATCH">PATCH</SelectItem>
-                      <SelectItem value="DELETE">DELETE</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    The HTTP method to use for this request
-                  </FormDescription>
+                  <FormLabel>Stakeholder Role</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      value={field.value}
+                      options={ROLE_OPTIONS}
+                      onChange={field.onChange}
+                      placeholder="Select roles"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-            /> */}
+            />
 
             <DialogFooter className="mt-4">
               <Button

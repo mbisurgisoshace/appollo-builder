@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 
-import { useCheckNodeSlugAvailability } from "@/features/projects/hooks/useProjects";
+import { useCheckNodeSlugAvailability } from "@/features/editor/hooks/useEditor";
 import { CheckCircleIcon, LoaderIcon, XCircleIcon } from "lucide-react";
 
 type SlugStatus = "idle" | "checking" | "available" | "taken";

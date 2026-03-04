@@ -17,22 +17,28 @@ export const projectsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      return prisma.node.upsert({
-        where: { id: input.id },
-        create: {
-          id: input.id,
-          slug: input.slug,
-          type: input.type,
-          projectId: input.projectId,
-          position: input.position,
-          data: input.data,
-        },
-        update: {
-          slug: input.slug,
-          data: input.data,
-          position: input.position,
-        },
-      });
+      return prisma.$transaction([
+        prisma.node.upsert({
+          where: { id: input.id },
+          create: {
+            id: input.id,
+            slug: input.slug,
+            type: input.type,
+            projectId: input.projectId,
+            position: input.position,
+            data: input.data,
+          },
+          update: {
+            slug: input.slug,
+            data: input.data,
+            position: input.position,
+          },
+        }),
+        prisma.project.update({
+          where: { id: input.projectId },
+          data: { updatedAt: new Date() },
+        }),
+      ]);
     }),
   updateNodePositions: protectedProcedure
     .input(
@@ -47,21 +53,31 @@ export const projectsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      return prisma.$transaction(
-        input.nodes.map((n) =>
+      return prisma.$transaction([
+        ...input.nodes.map((n) =>
           prisma.node.update({
             where: { id: n.id },
             data: { position: n.position },
           }),
         ),
-      );
+        prisma.project.update({
+          where: { id: input.projectId },
+          data: { updatedAt: new Date() },
+        }),
+      ]);
     }),
   deleteNode: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.string(), projectId: z.string() }))
     .mutation(async ({ input }) => {
-      return prisma.node.delete({
-        where: { id: input.id },
-      });
+      return prisma.$transaction([
+        prisma.node.delete({
+          where: { id: input.id },
+        }),
+        prisma.project.update({
+          where: { id: input.projectId },
+          data: { updatedAt: new Date() },
+        }),
+      ]);
     }),
   create: protectedProcedure
     .input(
@@ -71,9 +87,6 @@ export const projectsRouter = createTRPCRouter({
       }),
     )
     .mutation(({ input, ctx }) => {
-      console.log("input", input);
-      console.log("ctx", ctx);
-
       return prisma.project.create({
         data: {
           name: input.name,
@@ -97,6 +110,9 @@ export const projectsRouter = createTRPCRouter({
     return prisma.project.findMany({
       where: {
         userId: ctx.auth.user.id,
+      },
+      orderBy: {
+        updatedAt: "desc",
       },
     });
   }),

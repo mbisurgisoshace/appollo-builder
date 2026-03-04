@@ -1,8 +1,9 @@
 "use client";
 
+import { useCallback } from "react";
+import { useParams } from "next/navigation";
 import { useReactFlow } from "@xyflow/react";
 import { createId } from "@paralleldrive/cuid2";
-import { useParams } from "next/navigation";
 
 import {
   Sheet,
@@ -14,8 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { NodeType } from "@/generated/prisma/enums";
 import { Separator } from "@/components/ui/separator";
-import { useCallback } from "react";
-import { useUpsertNode } from "@/features/projects/hooks/useProjects";
+import { useUpsertNode } from "@/features/editor/hooks/useEditor";
 
 export type NodeTypeOption = {
   label: string;
@@ -76,7 +76,13 @@ export function NodeSelector({
 
       onOpenChange(false);
     },
-    [setNodes, screenToFlowPosition, onOpenChange, upsertNode, params.projectId],
+    [
+      setNodes,
+      screenToFlowPosition,
+      onOpenChange,
+      upsertNode,
+      params.projectId,
+    ],
   );
 
   return (
