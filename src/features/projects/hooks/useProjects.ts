@@ -37,6 +37,48 @@ export const useCreateProjects = () => {
   );
 };
 
+export const useUpsertNode = () => {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    trpc.projects.upsertNode.mutationOptions({
+      onSuccess: (data) => {
+        queryClient.invalidateQueries(
+          trpc.projects.getProject.queryOptions({ projectId: data.projectId }),
+        );
+      },
+      onError: (error) => {
+        toast.error(`Failed to save node: ${error.message}`);
+      },
+    }),
+  );
+};
+
+export const useUpdateNodePositions = () => {
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.projects.updateNodePositions.mutationOptions({
+      onError: (error) => {
+        toast.error(`Failed to save position: ${error.message}`);
+      },
+    }),
+  );
+};
+
+export const useDeleteNode = () => {
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.projects.deleteNode.mutationOptions({
+      onError: (error) => {
+        toast.error(`Failed to delete node: ${error.message}`);
+      },
+    }),
+  );
+};
+
 export const useCheckNodeSlugAvailability = (
   slug: string,
   projectId: string,

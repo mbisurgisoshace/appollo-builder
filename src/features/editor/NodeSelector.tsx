@@ -2,6 +2,7 @@
 
 import { useReactFlow } from "@xyflow/react";
 import { createId } from "@paralleldrive/cuid2";
+import { useParams } from "next/navigation";
 
 import {
   Sheet,
@@ -14,6 +15,7 @@ import {
 import { NodeType } from "@/generated/prisma/enums";
 import { Separator } from "@/components/ui/separator";
 import { useCallback } from "react";
+import { useUpsertNode } from "@/features/projects/hooks/useProjects";
 
 export type NodeTypeOption = {
   label: string;
@@ -39,31 +41,42 @@ export function NodeSelector({
   description,
   onOpenChange,
 }: NodeSelectorProps) {
-  const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
+  const { setNodes, screenToFlowPosition } = useReactFlow();
+  const { mutate: upsertNode } = useUpsertNode();
+  const params = useParams<{ projectId: string }>();
 
   const handleNodeSelect = useCallback(
     (selection: NodeTypeOption) => {
-      setNodes((nodes) => {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const flowPosition = screenToFlowPosition({
-          x: centerX + (Math.random() - 0.5) * 200,
-          y: centerY + (Math.random() - 0.5) * 200,
-        });
+      const id = createId();
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const flowPosition = screenToFlowPosition({
+        x: centerX + (Math.random() - 0.5) * 200,
+        y: centerY + (Math.random() - 0.5) * 200,
+      });
 
-        const newNode = {
-          id: createId(),
+      setNodes((nodes) => [
+        ...nodes,
+        {
+          id,
           data: {},
           type: selection.type,
           position: flowPosition,
-        };
+        },
+      ]);
 
-        return [...nodes, newNode];
+      upsertNode({
+        id,
+        slug: "",
+        type: selection.type,
+        projectId: params.projectId,
+        position: flowPosition,
+        data: {},
       });
 
       onOpenChange(false);
     },
-    [setNodes, getNodes, screenToFlowPosition, onOpenChange],
+    [setNodes, screenToFlowPosition, onOpenChange, upsertNode, params.projectId],
   );
 
   return (

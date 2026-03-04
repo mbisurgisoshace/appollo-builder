@@ -97,7 +97,7 @@ enum NodeType {
 
 model Node {
   id        String   @id @default(cuid())
-  slug      String
+  slug      String?
   projectId String
   type      NodeType
   position  Json

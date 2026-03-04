@@ -2,38 +2,50 @@
 
 import {
   Panel,
-  addEdge,
-  MiniMap,
   Controls,
   type Node,
-  type Edge,
   ReactFlow,
   Background,
-  type XYPosition,
   type NodeChange,
-  type EdgeChange,
-  type Connection,
-  applyEdgeChanges,
   applyNodeChanges,
 } from "@xyflow/react";
 import { useCallback, useState } from "react";
 
 import "@xyflow/react/dist/style.css";
 
-import { nodeComponents } from "../nodeComponents";
-import { AddStakeholderButton } from "./AddStakeholderButton";
-import { useSuspenseProject } from "@/features/projects/hooks/useProjects";
 import { transformNode } from "../adapters";
+import {
+  useSuspenseProject,
+  useUpdateNodePositions,
+} from "@/features/projects/hooks/useProjects";
+import { nodeComponents } from "../nodeComponents";
+import { NodeType } from "@/generated/prisma/enums";
+import { AddStakeholderButton } from "./AddStakeholderButton";
 
 export const StakeholdersEditor = ({ projectId }: { projectId: string }) => {
   const { data: project } = useSuspenseProject(projectId);
+  const { mutate: updateNodePositions } = useUpdateNodePositions();
 
-  const [nodes, setNodes] = useState<Node[]>(project.nodes.map(transformNode));
+  const [nodes, setNodes] = useState<Node[]>(
+    project.nodes
+      .filter((n) => n.type === NodeType.STAKEHOLDER)
+      .map(transformNode),
+  );
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
+  );
+
+  const onNodeDragStop = useCallback(
+    (_e: React.MouseEvent, _node: Node, draggedNodes: Node[]) => {
+      updateNodePositions({
+        projectId,
+        nodes: draggedNodes.map((n) => ({ id: n.id, position: n.position })),
+      });
+    },
+    [updateNodePositions, projectId],
   );
 
   return (
@@ -44,6 +56,7 @@ export const StakeholdersEditor = ({ projectId }: { projectId: string }) => {
         selectionOnDrag
         nodeTypes={nodeComponents}
         onNodesChange={onNodesChange}
+        onNodeDragStop={onNodeDragStop}
         proOptions={{ hideAttribution: true }}
       >
         <Controls />

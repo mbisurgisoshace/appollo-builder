@@ -4,6 +4,7 @@ import Image from "next/image";
 import { memo, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { type NodeProps, Position, useReactFlow } from "@xyflow/react";
+import { useDeleteNode } from "@/features/projects/hooks/useProjects";
 
 import { ProjectNode } from "./ProjectNode";
 import { BaseNode } from "@/components/react-flow/base-node";
@@ -33,19 +34,16 @@ export const BaseCanvasNode = memo(
     onDoubleClick,
   }: BaseCanvasNodeProps) => {
     const { setNodes, setEdges } = useReactFlow();
+    const { mutate: deleteNode } = useDeleteNode();
 
     const handleDelete = () => {
-      setNodes((currentNodes) => {
-        const updatedNodes = currentNodes.filter((node) => node.id !== id);
-        return updatedNodes;
-      });
-
-      setEdges((currentEdges) => {
-        const updatedEdges = currentEdges.filter(
+      setNodes((currentNodes) => currentNodes.filter((node) => node.id !== id));
+      setEdges((currentEdges) =>
+        currentEdges.filter(
           (edge) => edge.source !== id && edge.target !== id,
-        );
-        return updatedEdges;
-      });
+        ),
+      );
+      deleteNode({ id });
     };
 
     return (
