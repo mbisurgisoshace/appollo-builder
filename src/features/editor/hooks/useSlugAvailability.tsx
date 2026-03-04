@@ -5,7 +5,11 @@ import { CheckCircleIcon, LoaderIcon, XCircleIcon } from "lucide-react";
 
 type SlugStatus = "idle" | "checking" | "available" | "taken";
 
-export const useSlugAvailability = (slug: string, projectId: string) => {
+export const useSlugAvailability = (
+  slug: string,
+  originalSlug: string,
+  projectId: string,
+) => {
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
 
   const { refetch: checkSlug, isFetching: isCheckingSlug } =
@@ -17,6 +21,11 @@ export const useSlugAvailability = (slug: string, projectId: string) => {
 
   const checkAvailability = useCallback(
     async (value: string) => {
+      if (originalSlug && value === originalSlug) {
+        setSlugStatus("idle");
+        return;
+      }
+
       setSlugStatus("checking");
 
       const { data, error } = await checkSlug();
@@ -28,7 +37,7 @@ export const useSlugAvailability = (slug: string, projectId: string) => {
 
       setSlugStatus(data ? "available" : "taken");
     },
-    [checkSlug],
+    [checkSlug, originalSlug],
   );
 
   const reset = useCallback(() => {

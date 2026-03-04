@@ -26,9 +26,6 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
   };
 
   const handleSubmit = (values: FormType) => {
-    console.log("values", values);
-    return;
-
     setNodes((nodes) =>
       nodes.map((node) => {
         if (node.id === props.id) {

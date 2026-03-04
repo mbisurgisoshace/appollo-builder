@@ -53,7 +53,7 @@ const formSchema = z.object({
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       "Only lowercase letters, numbers, and hyphens allowed",
     ),
-  role: z.string().min(1, { message: "Role is required" }),
+  //role: z.string().min(1, { message: "Role is required" }),
 });
 
 export type FormType = z.infer<typeof formSchema>;
@@ -77,37 +77,40 @@ export const StakeholderDialog = ({
     defaultValues: {
       name: defaultData.name || "",
       slug: defaultData.slug || "",
-      role: defaultData.role || "",
+      //role: defaultData.role || "",
     },
     resolver: zodResolver(formSchema),
   });
+
+  const watchSlug = form.watch("slug");
+  const slugFieldState = form.getFieldState("slug");
+
+  const { slugStatus, isCheckingSlug, checkAvailability, reset } =
+    useSlugAvailability(watchSlug, defaultData.slug || "", projectId);
 
   useEffect(() => {
     if (open) {
       form.reset({
         name: defaultData.name || "",
         slug: defaultData.slug || "",
-        role: defaultData.role || "",
+        //role: defaultData.role || "",
       });
+      reset();
     }
   }, [open]);
 
-  const watchSlug = form.watch("slug");
-  const slugFieldState = form.getFieldState("slug");
-
-  const { slugStatus, isCheckingSlug, checkAvailability, reset } =
-    useSlugAvailability(watchSlug, projectId);
-
   const handleSubmit = async (values: FormType) => {
+    console.log("isCheckingSlug", isCheckingSlug);
+
     if (isCheckingSlug) return;
 
-    if (slugStatus === "idle") {
+    if (slugStatus === "idle" && values.slug !== defaultData.slug) {
       await checkAvailability(values.slug);
       return;
     }
 
-    //onSubmit(values);
-    //onOpenChange(false);
+    onSubmit(values);
+    onOpenChange(false);
   };
 
   return (
@@ -127,52 +130,6 @@ export const StakeholderDialog = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-8 mt-4"
           >
-            <FormField
-              name="name"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  {/* <FormDescription></FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* <FormField
-              name="method"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Method</FormLabel>
-                  <Select
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a method" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="GET">GET</SelectItem>
-                      <SelectItem value="POST">POST</SelectItem>
-                      <SelectItem value="PUT">PUT</SelectItem>
-                      <SelectItem value="PATCH">PATCH</SelectItem>
-                      <SelectItem value="DELETE">DELETE</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    The HTTP method to use for this request
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
             <FormField
               name="slug"
               control={form.control}
@@ -219,6 +176,52 @@ export const StakeholderDialog = ({
                 </FormItem>
               )}
             />
+
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  {/* <FormDescription></FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* <FormField
+              name="method"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Method</FormLabel>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a method" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="GET">GET</SelectItem>
+                      <SelectItem value="POST">POST</SelectItem>
+                      <SelectItem value="PUT">PUT</SelectItem>
+                      <SelectItem value="PATCH">PATCH</SelectItem>
+                      <SelectItem value="DELETE">DELETE</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    The HTTP method to use for this request
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
 
             <DialogFooter className="mt-4">
               <Button
