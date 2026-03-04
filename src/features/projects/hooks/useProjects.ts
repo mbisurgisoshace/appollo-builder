@@ -1,4 +1,5 @@
 import {
+  useQuery,
   useMutation,
   useQueryClient,
   useSuspenseQuery,
@@ -34,4 +35,17 @@ export const useCreateProjects = () => {
       },
     }),
   );
+};
+
+export const useCheckNodeSlugAvailability = (
+  slug: string,
+  projectId: string,
+) => {
+  const trpc = useTRPC();
+
+  return useQuery({
+    ...trpc.projects.isNodeSlugAvailable.queryOptions({ slug, projectId }),
+    retry: false,
+    enabled: false,
+  });
 };

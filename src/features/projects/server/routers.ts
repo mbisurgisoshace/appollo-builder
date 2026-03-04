@@ -1,6 +1,7 @@
 import z from "zod";
 
 import prisma from "@/lib/db";
+import { NodeType } from "@/generated/prisma/enums";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 export const projectsRouter = createTRPCRouter({
@@ -31,6 +32,7 @@ export const projectsRouter = createTRPCRouter({
           id: input.projectId,
           userId: ctx.auth.user.id,
         },
+        include: { nodes: true },
       });
     }),
   getProjects: protectedProcedure.query(({ ctx }) => {
@@ -40,4 +42,23 @@ export const projectsRouter = createTRPCRouter({
       },
     });
   }),
+  isNodeSlugAvailable: protectedProcedure
+    .input(
+      z.object({
+        slug: z.string(),
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const existingNode = await prisma.node.findUnique({
+        where: {
+          slug_projectId: {
+            slug: input.slug,
+            projectId: input.projectId,
+          },
+        },
+      });
+
+      return !existingNode;
+    }),
 });

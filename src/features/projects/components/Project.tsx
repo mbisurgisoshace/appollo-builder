@@ -9,9 +9,19 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarInset,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { ErrorView, LoadingView } from "@/components/BaseComponents";
 import { useSuspenseProject } from "../hooks/useProjects";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StakeholdersEditor } from "@/features/editor/stakeholders/StakeholdersEditor";
 
 export const ProjectLoading = () => {
   return <LoadingView message="Loading project..." />;
@@ -53,5 +63,30 @@ export const ProjectHeader = ({ projectId }: { projectId: string }) => {
         <ProjectBreadcrums projectId={projectId} />
       </div>
     </header>
+  );
+};
+
+export const ProjectContent = ({ projectId }: { projectId: string }) => {
+  return (
+    <Tabs className="h-full" defaultValue="stakeholders-builder">
+      <div className="p-2">
+        <TabsList>
+          <TabsTrigger value="stakeholders-builder">Stakeholders</TabsTrigger>
+          <TabsTrigger value="scope-builder">Scope</TabsTrigger>
+          <TabsTrigger value="data-builder">Data</TabsTrigger>
+        </TabsList>
+      </div>
+      <TabsContent value="stakeholders-builder">
+        <div className="h-full">
+          <StakeholdersEditor projectId={projectId} />
+        </div>
+      </TabsContent>
+      <TabsContent value="scope-builder">
+        <div className="p-4">Scope Builder content goes here</div>
+      </TabsContent>
+      <TabsContent value="data-builder">
+        <div className="p-4">Data Builder content goes here</div>
+      </TabsContent>
+    </Tabs>
   );
 };
