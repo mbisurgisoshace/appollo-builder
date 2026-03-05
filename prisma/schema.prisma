@@ -93,6 +93,8 @@ model Project {
 
 enum NodeType {
   STAKEHOLDER
+  SCOPE
+  DATA
 }
 
 model Node {
