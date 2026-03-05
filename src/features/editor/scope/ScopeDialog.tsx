@@ -108,10 +108,9 @@ export const ScopeDialog = ({
         <DialogHeader>
           <DialogTitle>Scope</DialogTitle>
           <DialogDescription>
-            Define a stakeholder for your project. Stakeholders can be users,
-            organizations, or any other entities that have an interest in your
-            project. You can reference stakeholders in your workflow to assign
-            tasks, send notifications, and more.
+            Define a scope item for your project. Scope items help describe what
+            is in or out of scope and can be referenced in your workflow for
+            planning, prioritization, and execution decisions.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -138,6 +137,7 @@ export const ScopeDialog = ({
                             "border-green-500 focus-visible:ring-green-500",
                         )}
                         onBlur={async (e) => {
+                          field.onBlur();
                           if (e.target.value) {
                             const valid = await form.trigger("slug");
                             if (valid) checkAvailability(e.target.value);

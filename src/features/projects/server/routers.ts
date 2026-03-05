@@ -9,7 +9,11 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        slug: z.string().optional().nullable().transform((v) => v || null),
+        slug: z
+          .string()
+          .optional()
+          .nullable()
+          .transform((v) => v || null),
         type: z.nativeEnum(NodeType),
         projectId: z.string(),
         position: z.object({ x: z.number(), y: z.number() }),
@@ -78,6 +82,17 @@ export const projectsRouter = createTRPCRouter({
           data: { updatedAt: new Date() },
         }),
       ]);
+    }),
+  getScopeFeatures: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(({ input, ctx }) => {
+      return prisma.node.findMany({
+        where: {
+          slug: { not: null },
+          type: NodeType.SCOPE,
+          projectId: input.projectId,
+        },
+      });
     }),
   create: protectedProcedure
     .input(

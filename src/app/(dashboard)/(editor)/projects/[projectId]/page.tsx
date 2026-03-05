@@ -9,7 +9,10 @@ import {
   ProjectLoading,
   ProjectContent,
 } from "@/features/projects/components/Project";
-import { prefetchTags } from "@/features/editor/server/prefetch";
+import {
+  prefetchTags,
+  prefetchScopeFeatures,
+} from "@/features/editor/server/prefetch";
 import { prefetchProject } from "@/features/projects/server/prefetch";
 
 interface PageProps {
@@ -25,6 +28,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
   prefetchTags();
   prefetchProject(projectId);
+  prefetchScopeFeatures(projectId);
 
   return (
     <HydrateClient>
