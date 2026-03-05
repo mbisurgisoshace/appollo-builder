@@ -22,6 +22,8 @@ import { ErrorView, LoadingView } from "@/components/BaseComponents";
 import { useSuspenseProject } from "../hooks/useProjects";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StakeholdersEditor } from "@/features/editor/stakeholders/StakeholdersEditor";
+import { ScopeEditor } from "@/features/editor/scope/ScopeEditor";
+import { DataEditor } from "@/features/editor/data/DataEditor";
 
 export const ProjectLoading = () => {
   return <LoadingView message="Loading project..." />;
@@ -82,10 +84,14 @@ export const ProjectContent = ({ projectId }: { projectId: string }) => {
         </div>
       </TabsContent>
       <TabsContent value="scope-builder">
-        <div className="p-4">Scope Builder content goes here</div>
+        <div className="h-full">
+          <ScopeEditor projectId={projectId} />
+        </div>
       </TabsContent>
       <TabsContent value="data-builder">
-        <div className="p-4">Data Builder content goes here</div>
+        <div className="h-full">
+          <DataEditor projectId={projectId} />
+        </div>
       </TabsContent>
     </Tabs>
   );

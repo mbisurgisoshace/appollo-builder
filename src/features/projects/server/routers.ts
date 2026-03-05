@@ -9,7 +9,7 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        slug: z.string(),
+        slug: z.string().optional().nullable().transform((v) => v || null),
         type: z.nativeEnum(NodeType),
         projectId: z.string(),
         position: z.object({ x: z.number(), y: z.number() }),
