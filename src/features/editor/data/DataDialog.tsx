@@ -32,6 +32,7 @@ import { DataNodeData } from "./DataNode";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TagSelector } from "../components/TagSelector";
+import { ScopeSelector } from "../components/ScopeSelector";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -44,6 +45,7 @@ const formSchema = z.object({
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       "Only lowercase letters, numbers, and hyphens allowed",
     ),
+  features: z.string().optional(),
   tags: z.string().optional(),
 });
 
@@ -69,6 +71,7 @@ export const DataDialog = ({
       title: defaultData.title || "",
       slug: defaultData.slug || "",
       tags: defaultData.tags || "",
+      features: defaultData.features || "",
     },
     resolver: zodResolver(formSchema),
   });
@@ -85,6 +88,7 @@ export const DataDialog = ({
         title: defaultData.title || "",
         slug: defaultData.slug || "",
         tags: defaultData.tags || "",
+        features: defaultData.features || "",
       });
       reset();
     }
@@ -138,6 +142,7 @@ export const DataDialog = ({
                             "border-green-500 focus-visible:ring-green-500",
                         )}
                         onBlur={async (e) => {
+                          field.onBlur();
                           if (e.target.value) {
                             const valid = await form.trigger("slug");
                             if (valid) checkAvailability(e.target.value);
@@ -176,6 +181,23 @@ export const DataDialog = ({
                     <Input placeholder="New Feature" {...field} />
                   </FormControl>
                   {/* <FormDescription></FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="features"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Features</FormLabel>
+                  <FormControl>
+                    <ScopeSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

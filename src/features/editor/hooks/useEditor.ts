@@ -21,6 +21,11 @@ export const useUpsertNode = () => {
             projectId: updatedProject.id,
           }),
         );
+        queryClient.invalidateQueries(
+          trpc.projects.getScopeFeatures.queryOptions({
+            projectId: updatedProject.id,
+          }),
+        );
       },
       onError: (error) => {
         toast.error(`Failed to save node: ${error.message}`);
@@ -50,6 +55,14 @@ export const useDeleteNode = () => {
         toast.error(`Failed to delete node: ${error.message}`);
       },
     }),
+  );
+};
+
+export const useSuspenseScopeFeatures = (projectId: string) => {
+  const trpc = useTRPC();
+
+  return useSuspenseQuery(
+    trpc.projects.getScopeFeatures.queryOptions({ projectId }),
   );
 };
 

@@ -32,8 +32,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ROLE_OPTIONS } from "@/config/constants";
 import { StakeHolderNodeData } from "./StakeholderNode";
-import { MultiSelect } from "@/components/ui/multiselect";
 import { TagSelector } from "../components/TagSelector";
+import { MultiSelect } from "@/components/ui/multiselect";
+import { ScopeSelector } from "../components/ScopeSelector";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -46,8 +47,9 @@ const formSchema = z.object({
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       "Only lowercase letters, numbers, and hyphens allowed",
     ),
-  role: z.string().min(1, { message: "Role is required" }),
   tags: z.string().optional(),
+  features: z.string().optional(),
+  role: z.string().min(1, { message: "Role is required" }),
 });
 
 export type FormType = z.infer<typeof formSchema>;
@@ -73,6 +75,7 @@ export const StakeholderDialog = ({
       slug: defaultData.slug || "",
       role: defaultData.role || "",
       tags: defaultData.tags || "",
+      features: defaultData.features || "",
     },
     resolver: zodResolver(formSchema),
   });
@@ -90,6 +93,7 @@ export const StakeholderDialog = ({
         slug: defaultData.slug || "",
         role: defaultData.role || "",
         tags: defaultData.tags || "",
+        features: defaultData.features || "",
       });
       reset();
     }
@@ -143,6 +147,7 @@ export const StakeholderDialog = ({
                             "border-green-500 focus-visible:ring-green-500",
                         )}
                         onBlur={async (e) => {
+                          field.onBlur();
                           if (e.target.value) {
                             const valid = await form.trigger("slug");
                             if (valid) checkAvailability(e.target.value);
@@ -198,6 +203,23 @@ export const StakeholderDialog = ({
                       options={ROLE_OPTIONS}
                       onChange={field.onChange}
                       placeholder="Select roles"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="features"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Features</FormLabel>
+                  <FormControl>
+                    <ScopeSelector
+                      value={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />

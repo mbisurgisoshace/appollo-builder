@@ -14,6 +14,7 @@ import { useUpsertNode } from "@/features/editor/hooks/useEditor";
 
 export type DataNodeData = {
   title?: string;
+  features?: string;
 } & BaseNodeData;
 
 type DataNodeType = Node<DataNodeData>;
@@ -39,6 +40,7 @@ export const DataNode = memo((props: NodeProps<DataNodeType>) => {
               title: values.title,
               slug: values.slug,
               tags: values.tags,
+              features: values.features,
             },
           };
         }
@@ -51,7 +53,11 @@ export const DataNode = memo((props: NodeProps<DataNodeType>) => {
       slug: values.slug,
       type: NodeType.DATA,
       projectId: params.projectId,
-      data: { title: values.title, tags: values.tags },
+      data: {
+        title: values.title,
+        tags: values.tags,
+        features: values.features,
+      },
       position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
     });
   };
