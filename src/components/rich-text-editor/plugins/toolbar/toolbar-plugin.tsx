@@ -1,0 +1,54 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND } from "lexical";
+
+import { ToolbarContext } from "@/components/rich-text-editor/context/toolbar-context";
+import { useEditorModal } from "@/components/rich-text-editor/editor-hooks/use-modal";
+
+export function ToolbarPlugin({
+  children,
+  onSave,
+  isDirty,
+}: {
+  children: (props: { blockType: string }) => React.ReactNode;
+  onSave?: () => void;
+  isDirty?: boolean;
+}) {
+  const [editor] = useLexicalComposerContext();
+
+  const [activeEditor, setActiveEditor] = useState(editor);
+  const [blockType, setBlockType] = useState<string>("paragraph");
+
+  const [modal, showModal] = useEditorModal();
+
+  const $updateToolbar = () => {};
+
+  useEffect(() => {
+    return activeEditor.registerCommand(
+      SELECTION_CHANGE_COMMAND,
+      (_payload, newEditor) => {
+        setActiveEditor(newEditor);
+        return false;
+      },
+      COMMAND_PRIORITY_CRITICAL,
+    );
+  }, [editor]);
+
+  return (
+    <ToolbarContext
+      activeEditor={activeEditor}
+      $updateToolbar={$updateToolbar}
+      blockType={blockType}
+      setBlockType={setBlockType}
+      showModal={showModal}
+      onSave={onSave}
+      isDirty={isDirty}
+    >
+      {modal}
+
+      {children({ blockType })}
+    </ToolbarContext>
+  );
+}
