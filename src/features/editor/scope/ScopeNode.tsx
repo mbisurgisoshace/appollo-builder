@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
 import { useParams } from "next/navigation";
+import { SerializedEditorState } from "lexical";
 import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
 
 import {
@@ -8,12 +9,14 @@ import {
   BaseNodeHeaderTitle,
 } from "@/components/react-flow/base-node";
 import { NodeType } from "@/generated/prisma/enums";
-import { BaseCanvasNode, BaseNodeData } from "../BaseCanvasNode";
 import { FormType, ScopeDialog } from "./ScopeDialog";
+import { Editor } from "@/components/rich-text-editor/editor";
+import { BaseCanvasNode, BaseNodeData } from "../BaseCanvasNode";
 import { useUpsertNode } from "@/features/editor/hooks/useEditor";
 
 export type ScopeNodeData = {
   title?: string;
+  richTextContent?: SerializedEditorState;
 } & BaseNodeData;
 
 type ScopeNodeType = Node<ScopeNodeData>;
@@ -51,7 +54,25 @@ export const ScopeNode = memo((props: NodeProps<ScopeNodeType>) => {
       slug: values.slug,
       type: NodeType.SCOPE,
       projectId: params.projectId,
-      data: { title: values.title, tags: values.tags },
+      data: {
+        title: values.title,
+        tags: values.tags,
+        richTextContent: props.data.richTextContent,
+      },
+      position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
+    });
+  };
+
+  const handleEditorSave = (state: SerializedEditorState) => {
+    upsertNode({
+      id: props.id,
+      slug: props.data.slug,
+      type: NodeType.SCOPE,
+      projectId: params.projectId,
+      data: {
+        ...props.data,
+        richTextContent: state,
+      },
       position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
     });
   };
@@ -71,12 +92,15 @@ export const ScopeNode = memo((props: NodeProps<ScopeNodeType>) => {
         id={props.id}
         name="Scope"
         onSettings={handleOpenSettings}
-        onDoubleClick={handleOpenSettings}
+        //onDoubleClick={handleOpenSettings}
       >
-        <BaseNodeHeader>
-          <BaseNodeHeaderTitle>Scope</BaseNodeHeaderTitle>
-        </BaseNodeHeader>
-        <BaseNodeContent>This is a scope</BaseNodeContent>
+        <BaseNodeContent>
+          <Editor
+            className="h-125 w-112.5"
+            onSave={handleEditorSave}
+            editorSerializedState={props.data.richTextContent}
+          />
+        </BaseNodeContent>
       </BaseCanvasNode>
     </>
   );

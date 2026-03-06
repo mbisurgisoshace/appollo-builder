@@ -134,8 +134,8 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
         <BaseNodeContent>
           <Editor
             className="h-125 w-112.5"
-            editorSerializedState={props.data.richTextContent}
             onSave={handleEditorSave}
+            editorSerializedState={props.data.richTextContent}
           />
         </BaseNodeContent>
       </BaseCanvasNode>
