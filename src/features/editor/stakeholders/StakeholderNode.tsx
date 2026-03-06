@@ -24,45 +24,41 @@ export type StakeHolderNodeData = {
 
 type StakeHolderNodeType = Node<StakeHolderNodeData>;
 
-export const initialValue = {
-  root: {
-    children: [
-      {
-        children: [
-          {
-            detail: 0,
-            format: 0,
-            mode: "normal",
-            style: "",
-            text: "Hello World 🚀",
-            type: "text",
-            version: 1,
-          },
-        ],
-        direction: "ltr",
-        format: "",
-        indent: 0,
-        type: "paragraph",
-        version: 1,
-      },
-    ],
-    direction: "ltr",
-    format: "",
-    indent: 0,
-    type: "root",
-    version: 1,
-  },
-} as unknown as SerializedEditorState;
+// export const initialValue = {
+//   root: {
+//     children: [
+//       {
+//         children: [
+//           {
+//             detail: 0,
+//             format: 0,
+//             mode: "normal",
+//             style: "",
+//             text: "Hello World 🚀",
+//             type: "text",
+//             version: 1,
+//           },
+//         ],
+//         direction: "ltr",
+//         format: "",
+//         indent: 0,
+//         type: "paragraph",
+//         version: 1,
+//       },
+//     ],
+//     direction: "ltr",
+//     format: "",
+//     indent: 0,
+//     type: "root",
+//     version: 1,
+//   },
+// } as unknown as SerializedEditorState;
 
 export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
   const { setNodes } = useReactFlow();
   const { mutate: upsertNode } = useUpsertNode();
   const params = useParams<{ projectId: string }>();
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const [editorState, setEditorState] = useState<SerializedEditorState>(
-    props.data.richTextContent ?? initialValue,
-  );
 
   const handleOpenSettings = () => {
     setDialogOpen(true);
@@ -98,7 +94,7 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
         role: values.role,
         tags: values.tags,
         features: values.features,
-        richTextContent: editorState,
+        richTextContent: props.data.richTextContent,
       },
       position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
     });
@@ -138,8 +134,7 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
         <BaseNodeContent>
           <Editor
             className="h-125 w-112.5"
-            editorSerializedState={editorState}
-            onSerializedChange={(value) => setEditorState(value)}
+            editorSerializedState={props.data.richTextContent}
             onSave={handleEditorSave}
           />
         </BaseNodeContent>
