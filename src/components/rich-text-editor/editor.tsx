@@ -45,10 +45,15 @@ export function Editor({
   const latestStateRef = useRef<SerializedEditorState | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstChangeRef = useRef(true);
+  const isRemoteUpdateRef = useRef(false);
   const onSaveRef = useRef(onSave);
   useEffect(() => {
     onSaveRef.current = onSave;
   }, [onSave]);
+
+  const handleBeforeRemoteUpdate = useCallback(() => {
+    isRemoteUpdateRef.current = true;
+  }, []);
 
   const handleSave = useCallback(() => {
     if (!latestStateRef.current || !onSaveRef.current) return;
@@ -60,9 +65,15 @@ export function Editor({
   const handleChange = useCallback(
     (editorState: EditorState) => {
       const serialized = editorState.toJSON();
+      latestStateRef.current = serialized;
+
+      if (isRemoteUpdateRef.current) {
+        isRemoteUpdateRef.current = false;
+        return;
+      }
+
       onChange?.(editorState);
       onSerializedChange?.(serialized);
-      latestStateRef.current = serialized;
 
       if (isFirstChangeRef.current) {
         isFirstChangeRef.current = false;
@@ -97,7 +108,12 @@ export function Editor({
         }}
       >
         <TooltipProvider>
-          <Plugins onSave={onSave ? handleSave : undefined} isDirty={isDirty} />
+          <Plugins
+          onSave={onSave ? handleSave : undefined}
+          isDirty={isDirty}
+          externalSerializedState={editorSerializedState}
+          onBeforeRemoteUpdate={handleBeforeRemoteUpdate}
+        />
 
           <OnChangePlugin
             ignoreSelectionChange={true}

@@ -32,6 +32,7 @@ export type RoomEvent =
   | { type: "NODE_POSITIONS_UPDATED"; projectId: string };
 
 const client = createClient({
+  throttle: 40,
   authEndpoint: "/api/liveblocks/auth",
 });
 
