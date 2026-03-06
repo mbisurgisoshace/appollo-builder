@@ -19,6 +19,7 @@ export type StakeHolderNodeData = {
   name?: string;
   role?: string;
   features?: string;
+  richTextContent?: SerializedEditorState;
 } & BaseNodeData;
 
 type StakeHolderNodeType = Node<StakeHolderNodeData>;
@@ -59,8 +60,9 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
   const params = useParams<{ projectId: string }>();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [editorState, setEditorState] =
-    useState<SerializedEditorState>(initialValue);
+  const [editorState, setEditorState] = useState<SerializedEditorState>(
+    props.data.richTextContent ?? initialValue,
+  );
 
   const handleOpenSettings = () => {
     setDialogOpen(true);
@@ -96,6 +98,21 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
         role: values.role,
         tags: values.tags,
         features: values.features,
+        richTextContent: editorState,
+      },
+      position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
+    });
+  };
+
+  const handleEditorSave = (state: SerializedEditorState) => {
+    upsertNode({
+      id: props.id,
+      slug: props.data.slug,
+      type: NodeType.STAKEHOLDER,
+      projectId: params.projectId,
+      data: {
+        ...props.data,
+        richTextContent: state,
       },
       position: { x: props.positionAbsoluteX, y: props.positionAbsoluteY },
     });
@@ -123,6 +140,7 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
             className="h-125 w-112.5"
             editorSerializedState={editorState}
             onSerializedChange={(value) => setEditorState(value)}
+            onSave={handleEditorSave}
           />
         </BaseNodeContent>
       </BaseCanvasNode>

@@ -9,8 +9,12 @@ import { useEditorModal } from "@/components/rich-text-editor/editor-hooks/use-m
 
 export function ToolbarPlugin({
   children,
+  onSave,
+  isDirty,
 }: {
   children: (props: { blockType: string }) => React.ReactNode;
+  onSave?: () => void;
+  isDirty?: boolean;
 }) {
   const [editor] = useLexicalComposerContext();
 
@@ -39,6 +43,8 @@ export function ToolbarPlugin({
       blockType={blockType}
       setBlockType={setBlockType}
       showModal={showModal}
+      onSave={onSave}
+      isDirty={isDirty}
     >
       {modal}
 

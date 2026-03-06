@@ -23,6 +23,7 @@ import { CodeActionMenuPlugin } from "@/components/rich-text-editor/plugins/code
 import { CodeHighlightPlugin } from "@/components/rich-text-editor/plugins/code-highlight-plugin";
 import { ComponentPickerMenuPlugin } from "@/components/rich-text-editor/plugins/component-picker-menu-plugin";
 import { DraggableBlockPlugin } from "@/components/rich-text-editor/plugins/draggable-block-plugin";
+import { SaveToolbarPlugin } from "@/components/rich-text-editor/plugins/toolbar/save-toolbar-plugin";
 import { FloatingLinkEditorPlugin } from "@/components/rich-text-editor/plugins/floating-link-editor-plugin";
 import { FloatingTextFormatToolbarPlugin } from "@/components/rich-text-editor/plugins/floating-text-format-plugin";
 import { ImagesPlugin } from "@/components/rich-text-editor/plugins/images-plugin";
@@ -62,7 +63,13 @@ import { TABLE } from "@/components/rich-text-editor/transformers/markdown-table
 
 const placeholder = "Press / for commands...";
 
-export function Plugins({}) {
+export function Plugins({
+  onSave,
+  isDirty,
+}: {
+  onSave?: () => void;
+  isDirty?: boolean;
+}) {
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
@@ -75,7 +82,7 @@ export function Plugins({}) {
 
   return (
     <div className="relative">
-      <ToolbarPlugin>
+      <ToolbarPlugin onSave={onSave} isDirty={isDirty}>
         {({ blockType }) => (
           <div className="vertical-align-middle sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b p-1">
             <HistoryToolbarPlugin />
@@ -99,6 +106,7 @@ export function Plugins({}) {
                 <HorizontalRuleToolbarPlugin />
                 <ImageToolbarPlugin />
                 <TableToolbarPlugin />
+                <SaveToolbarPlugin />
               </>
             )}
           </div>

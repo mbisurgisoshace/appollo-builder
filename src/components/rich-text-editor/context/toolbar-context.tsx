@@ -12,12 +12,16 @@ const Context = createContext<{
     title: string,
     showModal: (onClose: () => void) => JSX.Element
   ) => void
+  onSave?: () => void
+  isDirty: boolean
 }>({
   activeEditor: {} as LexicalEditor,
   $updateToolbar: () => {},
   blockType: "paragraph",
   setBlockType: () => {},
   showModal: () => {},
+  onSave: undefined,
+  isDirty: false,
 })
 
 export function ToolbarContext({
@@ -26,6 +30,8 @@ export function ToolbarContext({
   blockType,
   setBlockType,
   showModal,
+  onSave,
+  isDirty = false,
   children,
 }: {
   activeEditor: LexicalEditor
@@ -36,6 +42,8 @@ export function ToolbarContext({
     title: string,
     showModal: (onClose: () => void) => JSX.Element
   ) => void
+  onSave?: () => void
+  isDirty?: boolean
   children: React.ReactNode
 }) {
   return (
@@ -46,6 +54,8 @@ export function ToolbarContext({
         blockType,
         setBlockType,
         showModal,
+        onSave,
+        isDirty,
       }}
     >
       {children}
