@@ -85,6 +85,7 @@ export function Editor({
         "bg-background overflow-hidden rounded-lg border shadow nodrag nopan nowheel cursor-text",
         className,
       )}
+      onPointerDown={(e) => e.stopPropagation()}
     >
       <LexicalComposer
         initialConfig={{

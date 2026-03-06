@@ -97,7 +97,10 @@ export function CodeLanguageToolbarPlugin() {
 
   return (
     <Select>
-      <SelectTrigger className="!h-8 w-min gap-1">
+      <SelectTrigger
+        onPointerDown={(e) => e.stopPropagation()}
+        className="!h-8 w-min gap-1"
+      >
         <span>
           {getLanguageFriendlyName(codeLanguage) || "Select Language"}
         </span>

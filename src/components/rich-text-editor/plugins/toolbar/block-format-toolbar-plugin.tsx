@@ -72,11 +72,14 @@ export function BlockFormatDropDown({
         setBlockType(value as keyof typeof blockTypeToBlockName);
       }}
     >
-      <SelectTrigger className="!h-8 w-min gap-1">
+      <SelectTrigger
+        onPointerDown={(e) => e.stopPropagation()}
+        className="!h-8 w-min gap-1"
+      >
         {blockTypeToBlockName[blockType].icon}
         <span>{blockTypeToBlockName[blockType].label}</span>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper">
         <SelectGroup>{children}</SelectGroup>
       </SelectContent>
     </Select>
