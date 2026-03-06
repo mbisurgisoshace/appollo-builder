@@ -13,12 +13,29 @@ import { useOthers, useUpdateMyPresence } from "@/lib/liveblocks.config";
  * We convert to canvas-relative pixel coords with: x = flowX * zoom + translateX
  * This formula correctly handles zoom and pan on both sides without any screen-offset math.
  */
-export function CollaborativeCursors() {
+type DragCursorCallback = (pos: { x: number; y: number }) => void;
+
+export function CollaborativeCursors({
+  dragCursorCallbackRef,
+}: {
+  dragCursorCallbackRef?: React.MutableRefObject<DragCursorCallback | null>;
+}) {
   const others = useOthers();
   const updateMyPresence = useUpdateMyPresence();
   const { screenToFlowPosition } = useReactFlow();
   const { x: translateX, y: translateY, zoom } = useViewport();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (dragCursorCallbackRef) {
+      dragCursorCallbackRef.current = (pos) => {
+        updateMyPresence({ cursor: screenToFlowPosition(pos) });
+      };
+    }
+    return () => {
+      if (dragCursorCallbackRef) dragCursorCallbackRef.current = null;
+    };
+  }, [dragCursorCallbackRef, screenToFlowPosition, updateMyPresence]);
 
   useEffect(() => {
     const container = containerRef.current?.closest<HTMLElement>(".react-flow");

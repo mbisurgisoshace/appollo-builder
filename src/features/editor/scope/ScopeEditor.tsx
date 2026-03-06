@@ -9,7 +9,7 @@ import {
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import "@xyflow/react/dist/style.css";
 
@@ -28,6 +28,7 @@ export const ScopeEditor = ({ projectId }: { projectId: string }) => {
   const { mutate: updateNodePositions } = useUpdateNodePositions();
   const updateMyPresence = useUpdateMyPresence();
   const others = useOthers();
+  const dragCursorCallbackRef = useRef<((pos: { x: number; y: number }) => void) | null>(null);
   useCanvasSync(projectId);
 
   const [nodes, setNodes] = useState<Node[]>(
@@ -64,7 +65,8 @@ export const ScopeEditor = ({ projectId }: { projectId: string }) => {
   );
 
   const onNodeDrag = useCallback(
-    (_e: React.MouseEvent, _node: Node, draggedNodes: Node[]) => {
+    (e: React.MouseEvent, _node: Node, draggedNodes: Node[]) => {
+      dragCursorCallbackRef.current?.({ x: e.clientX, y: e.clientY });
       updateMyPresence({
         draggingNodes: draggedNodes.map((n) => ({ id: n.id, position: n.position })),
       });
@@ -97,7 +99,7 @@ export const ScopeEditor = ({ projectId }: { projectId: string }) => {
       >
         <Controls />
         <Background />
-        <CollaborativeCursors />
+        <CollaborativeCursors dragCursorCallbackRef={dragCursorCallbackRef} />
         <Panel position="center-left">
           <AddScopeButton />
         </Panel>
