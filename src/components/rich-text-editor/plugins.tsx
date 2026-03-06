@@ -81,10 +81,10 @@ export function Plugins({
   };
 
   return (
-    <div className="relative">
+    <div className="flex flex-col h-full">
       <ToolbarPlugin onSave={onSave} isDirty={isDirty}>
         {({ blockType }) => (
-          <div className="vertical-align-middle sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b p-1">
+          <div className="vertical-align-middle z-10 flex flex-wrap items-center gap-2 border-b p-1">
             <HistoryToolbarPlugin />
             <BlockFormatDropDown>
               <FormatParagraph />
@@ -112,14 +112,14 @@ export function Plugins({
           </div>
         )}
       </ToolbarPlugin>
-      <div className="relative">
+      <div className="relative flex-1 overflow-auto">
         <RichTextPlugin
           contentEditable={
             <div className="">
               <div className="" ref={onRef}>
                 <ContentEditable
                   placeholder={placeholder}
-                  className="ContentEditable__root relative block h-[calc(100vh-50px)] min-h-72 overflow-auto px-8 py-4 focus:outline-none"
+                  className="ContentEditable__root relative block min-h-full px-8 py-4 focus:outline-none"
                 />
               </div>
             </div>

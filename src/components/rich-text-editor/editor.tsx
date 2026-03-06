@@ -82,7 +82,7 @@ export function Editor({
   return (
     <div
       className={cn(
-        "bg-background overflow-hidden rounded-lg border shadow nodrag nopan nowheel cursor-text",
+        "bg-background overflow-hidden rounded-lg border shadow nodrag nopan nowheel cursor-text flex flex-col",
         className,
       )}
       onPointerDown={(e) => e.stopPropagation()}
