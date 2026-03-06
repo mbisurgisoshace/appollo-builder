@@ -11,6 +11,9 @@ import { NodeType } from "@/generated/prisma/enums";
 import { BaseCanvasNode, BaseNodeData } from "../BaseCanvasNode";
 import { FormType, StakeholderDialog } from "./StakeholderDialog";
 import { useUpsertNode } from "@/features/editor/hooks/useEditor";
+import { Editor } from "@/components/rich-text-editor/editor";
+import { SerializedEditorState } from "lexical";
+import { Input } from "@/components/ui/input";
 
 export type StakeHolderNodeData = {
   name?: string;
@@ -20,11 +23,44 @@ export type StakeHolderNodeData = {
 
 type StakeHolderNodeType = Node<StakeHolderNodeData>;
 
+export const initialValue = {
+  root: {
+    children: [
+      {
+        children: [
+          {
+            detail: 0,
+            format: 0,
+            mode: "normal",
+            style: "",
+            text: "Hello World 🚀",
+            type: "text",
+            version: 1,
+          },
+        ],
+        direction: "ltr",
+        format: "",
+        indent: 0,
+        type: "paragraph",
+        version: 1,
+      },
+    ],
+    direction: "ltr",
+    format: "",
+    indent: 0,
+    type: "root",
+    version: 1,
+  },
+} as unknown as SerializedEditorState;
+
 export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
   const { setNodes } = useReactFlow();
   const { mutate: upsertNode } = useUpsertNode();
   const params = useParams<{ projectId: string }>();
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const [editorState, setEditorState] =
+    useState<SerializedEditorState>(initialValue);
 
   const handleOpenSettings = () => {
     setDialogOpen(true);
@@ -80,12 +116,15 @@ export const StakeholderNode = memo((props: NodeProps<StakeHolderNodeType>) => {
         id={props.id}
         name="Stakeholder"
         onSettings={handleOpenSettings}
-        onDoubleClick={handleOpenSettings}
+        //onDoubleClick={handleOpenSettings}
       >
-        <BaseNodeHeader>
-          <BaseNodeHeaderTitle>Stakeholder</BaseNodeHeaderTitle>
-        </BaseNodeHeader>
-        <BaseNodeContent>This is a stakeholder</BaseNodeContent>
+        <BaseNodeContent>
+          <Editor
+            className="h-125 w-112.5"
+            editorSerializedState={editorState}
+            onSerializedChange={(value) => setEditorState(value)}
+          />
+        </BaseNodeContent>
       </BaseCanvasNode>
     </>
   );
