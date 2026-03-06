@@ -5,9 +5,12 @@ import { createRoomContext } from "@liveblocks/react";
 
 export type CursorCoords = { x: number; y: number };
 
+export type DraggingNode = { id: string; position: { x: number; y: number } };
+
 export type Presence = {
   cursor: CursorCoords | null;
   selectedNodeId: string | null;
+  draggingNodes: DraggingNode[] | null;
   userInfo: {
     id: string;
     name: string;

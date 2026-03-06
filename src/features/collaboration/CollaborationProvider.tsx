@@ -21,6 +21,7 @@ export function CollaborationProvider({
       initialPresence={{
         cursor: null,
         selectedNodeId: null,
+        draggingNodes: null,
         userInfo: { id: "", name: "", image: null, color: "#6366f1" },
       }}
     >
