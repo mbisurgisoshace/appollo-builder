@@ -9,7 +9,7 @@ import {
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import "@xyflow/react/dist/style.css";
 
@@ -19,14 +19,25 @@ import { NodeType } from "@/generated/prisma/enums";
 import { AddScopeButton } from "./AddScopeButton";
 import { useSuspenseProject } from "@/features/projects/hooks/useProjects";
 import { useUpdateNodePositions } from "@/features/editor/hooks/useEditor";
+import { CollaborativeCursors } from "@/features/collaboration/components/CollaborativeCursors";
+import { useCanvasSync } from "@/features/collaboration/hooks/useCanvasSync";
 
 export const ScopeEditor = ({ projectId }: { projectId: string }) => {
   const { data: project } = useSuspenseProject(projectId);
   const { mutate: updateNodePositions } = useUpdateNodePositions();
+  useCanvasSync(projectId);
 
   const [nodes, setNodes] = useState<Node[]>(
     project.nodes.filter((n) => n.type === NodeType.SCOPE).map(transformNode),
   );
+
+  useEffect(() => {
+    setNodes(
+      project.nodes
+        .filter((n) => n.type === NodeType.SCOPE)
+        .map(transformNode),
+    );
+  }, [project.nodes]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -57,6 +68,7 @@ export const ScopeEditor = ({ projectId }: { projectId: string }) => {
       >
         <Controls />
         <Background />
+        <CollaborativeCursors />
         <Panel position="center-left">
           <AddScopeButton />
         </Panel>

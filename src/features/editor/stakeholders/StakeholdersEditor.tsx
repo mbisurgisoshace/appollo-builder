@@ -9,7 +9,7 @@ import {
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import "@xyflow/react/dist/style.css";
 
@@ -19,16 +19,27 @@ import { NodeType } from "@/generated/prisma/enums";
 import { AddStakeholderButton } from "./AddStakeholderButton";
 import { useSuspenseProject } from "@/features/projects/hooks/useProjects";
 import { useUpdateNodePositions } from "@/features/editor/hooks/useEditor";
+import { CollaborativeCursors } from "@/features/collaboration/components/CollaborativeCursors";
+import { useCanvasSync } from "@/features/collaboration/hooks/useCanvasSync";
 
 export const StakeholdersEditor = ({ projectId }: { projectId: string }) => {
   const { data: project } = useSuspenseProject(projectId);
   const { mutate: updateNodePositions } = useUpdateNodePositions();
+  useCanvasSync(projectId);
 
   const [nodes, setNodes] = useState<Node[]>(
     project.nodes
       .filter((n) => n.type === NodeType.STAKEHOLDER)
       .map(transformNode),
   );
+
+  useEffect(() => {
+    setNodes(
+      project.nodes
+        .filter((n) => n.type === NodeType.STAKEHOLDER)
+        .map(transformNode),
+    );
+  }, [project.nodes]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -59,6 +70,7 @@ export const StakeholdersEditor = ({ projectId }: { projectId: string }) => {
       >
         <Controls />
         <Background />
+        <CollaborativeCursors />
         <Panel position="center-left">
           <AddStakeholderButton />
         </Panel>

@@ -14,6 +14,7 @@ import {
   prefetchScopeFeatures,
 } from "@/features/editor/server/prefetch";
 import { prefetchProject } from "@/features/projects/server/prefetch";
+import { CollaborationProvider } from "@/features/collaboration/CollaborationProvider";
 
 interface PageProps {
   params: Promise<{
@@ -34,10 +35,12 @@ export default async function ProjectPage({ params }: PageProps) {
     <HydrateClient>
       <ErrorBoundary fallback={<ProjectError />}>
         <Suspense fallback={<ProjectLoading />}>
-          <ProjectHeader projectId={projectId} />
-          <main className="flex-1">
-            <ProjectContent projectId={projectId} />
-          </main>
+          <CollaborationProvider projectId={projectId}>
+            <ProjectHeader projectId={projectId} />
+            <main className="flex-1">
+              <ProjectContent projectId={projectId} />
+            </main>
+          </CollaborationProvider>
         </Suspense>
       </ErrorBoundary>
     </HydrateClient>
