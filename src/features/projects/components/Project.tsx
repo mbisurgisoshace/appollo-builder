@@ -24,6 +24,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StakeholdersEditor } from "@/features/editor/stakeholders/StakeholdersEditor";
 import { ScopeEditor } from "@/features/editor/scope/ScopeEditor";
 import { DataEditor } from "@/features/editor/data/DataEditor";
+import { PresenceAvatars } from "@/features/collaboration/components/PresenceAvatars";
+import { InviteDialog } from "@/features/collaboration/components/InviteDialog";
+import { authClient } from "@/lib/auth-client";
 
 export const ProjectLoading = () => {
   return <LoadingView message="Loading project..." />;
@@ -58,11 +61,22 @@ export const ProjectBreadcrums = ({ projectId }: { projectId: string }) => {
 };
 
 export const ProjectHeader = ({ projectId }: { projectId: string }) => {
+  const { data: session } = authClient.useSession();
+
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4 bg-background">
       <SidebarTrigger />
       <div className="flex flex-row items-center justify-between gap-x-4 w-full">
         <ProjectBreadcrums projectId={projectId} />
+        <div className="flex items-center gap-3">
+          <PresenceAvatars />
+          {session?.user?.id && (
+            <InviteDialog
+              projectId={projectId}
+              currentUserId={session.user.id}
+            />
+          )}
+        </div>
       </div>
     </header>
   );

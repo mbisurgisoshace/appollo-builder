@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SerializedEditorState } from "lexical";
 import {
   CHECK_LIST,
   ELEMENT_TRANSFORMERS,
@@ -23,6 +24,7 @@ import { CodeActionMenuPlugin } from "@/components/rich-text-editor/plugins/code
 import { CodeHighlightPlugin } from "@/components/rich-text-editor/plugins/code-highlight-plugin";
 import { ComponentPickerMenuPlugin } from "@/components/rich-text-editor/plugins/component-picker-menu-plugin";
 import { DraggableBlockPlugin } from "@/components/rich-text-editor/plugins/draggable-block-plugin";
+import { RemoteStatePlugin } from "@/components/rich-text-editor/plugins/remote-state-plugin";
 import { SaveToolbarPlugin } from "@/components/rich-text-editor/plugins/toolbar/save-toolbar-plugin";
 import { FloatingLinkEditorPlugin } from "@/components/rich-text-editor/plugins/floating-link-editor-plugin";
 import { FloatingTextFormatToolbarPlugin } from "@/components/rich-text-editor/plugins/floating-text-format-plugin";
@@ -66,9 +68,13 @@ const placeholder = "Press / for commands...";
 export function Plugins({
   onSave,
   isDirty,
+  externalSerializedState,
+  onBeforeRemoteUpdate,
 }: {
   onSave?: () => void;
   isDirty?: boolean;
+  externalSerializedState?: SerializedEditorState;
+  onBeforeRemoteUpdate?: () => void;
 }) {
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
@@ -180,6 +186,14 @@ export function Plugins({
         <TablePlugin />
 
         <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+
+        {onBeforeRemoteUpdate && (
+          <RemoteStatePlugin
+            editorSerializedState={externalSerializedState}
+            isDirty={isDirty}
+            onBeforeUpdate={onBeforeRemoteUpdate}
+          />
+        )}
 
         <MarkdownShortcutPlugin
           transformers={[

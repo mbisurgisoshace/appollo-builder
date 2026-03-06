@@ -1,7 +1,9 @@
 import z from "zod";
+import { TRPCError } from "@trpc/server";
 
 import prisma from "@/lib/db";
 import { NodeType } from "@/generated/prisma/enums";
+import { assertProjectAccess, ProjectRole } from "@/lib/project-access";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 export const projectsRouter = createTRPCRouter({
@@ -20,7 +22,11 @@ export const projectsRouter = createTRPCRouter({
         data: z.record(z.string(), z.any()).optional().default({}),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id, [
+        ProjectRole.OWNER,
+        ProjectRole.EDITOR,
+      ]);
       return prisma.$transaction([
         prisma.node.upsert({
           where: { id: input.id },
@@ -56,7 +62,11 @@ export const projectsRouter = createTRPCRouter({
         ),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id, [
+        ProjectRole.OWNER,
+        ProjectRole.EDITOR,
+      ]);
       return prisma.$transaction([
         ...input.nodes.map((n) =>
           prisma.node.update({
@@ -72,7 +82,11 @@ export const projectsRouter = createTRPCRouter({
     }),
   deleteNode: protectedProcedure
     .input(z.object({ id: z.string(), projectId: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id, [
+        ProjectRole.OWNER,
+        ProjectRole.EDITOR,
+      ]);
       return prisma.$transaction([
         prisma.node.delete({
           where: { id: input.id },
@@ -85,7 +99,8 @@ export const projectsRouter = createTRPCRouter({
     }),
   getScopeFeatures: protectedProcedure
     .input(z.object({ projectId: z.string() }))
-    .query(({ input, ctx }) => {
+    .query(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id);
       return prisma.node.findMany({
         where: {
           slug: { not: null },
@@ -101,30 +116,37 @@ export const projectsRouter = createTRPCRouter({
         description: z.string().optional(),
       }),
     )
-    .mutation(({ input, ctx }) => {
-      return prisma.project.create({
+    .mutation(async ({ input, ctx }) => {
+      const project = await prisma.project.create({
         data: {
           name: input.name,
           description: input.description,
           userId: ctx.auth.user.id,
         },
       });
+      // Auto-add creator as OWNER member
+      await prisma.projectMember.create({
+        data: {
+          projectId: project.id,
+          userId: ctx.auth.user.id,
+          role: ProjectRole.OWNER,
+        },
+      });
+      return project;
     }),
   getProject: protectedProcedure
     .input(z.object({ projectId: z.string() }))
-    .query(({ input, ctx }) => {
+    .query(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id);
       return prisma.project.findUniqueOrThrow({
-        where: {
-          id: input.projectId,
-          userId: ctx.auth.user.id,
-        },
+        where: { id: input.projectId },
         include: { nodes: true },
       });
     }),
   getProjects: protectedProcedure.query(({ ctx }) => {
     return prisma.project.findMany({
       where: {
-        userId: ctx.auth.user.id,
+        members: { some: { userId: ctx.auth.user.id } },
       },
       orderBy: {
         updatedAt: "desc",
@@ -139,6 +161,7 @@ export const projectsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id);
       const existingNode = await prisma.node.findUnique({
         where: {
           slug_projectId: {
@@ -149,5 +172,75 @@ export const projectsRouter = createTRPCRouter({
       });
 
       return !existingNode;
+    }),
+  listMembers: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id);
+      return prisma.projectMember.findMany({
+        where: { projectId: input.projectId },
+        include: { user: { select: { id: true, name: true, email: true, image: true } } },
+        orderBy: { createdAt: "asc" },
+      });
+    }),
+  inviteMember: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        email: z.string().email(),
+        role: z.nativeEnum(ProjectRole).default(ProjectRole.EDITOR),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id, [
+        ProjectRole.OWNER,
+      ]);
+
+      const invitee = await prisma.user.findUnique({
+        where: { email: input.email },
+      });
+      if (!invitee) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No account found with that email address.",
+        });
+      }
+      if (invitee.id === ctx.auth.user.id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You cannot invite yourself.",
+        });
+      }
+
+      return prisma.projectMember.upsert({
+        where: {
+          projectId_userId: { projectId: input.projectId, userId: invitee.id },
+        },
+        create: {
+          projectId: input.projectId,
+          userId: invitee.id,
+          role: input.role,
+        },
+        update: { role: input.role },
+        include: { user: { select: { id: true, name: true, email: true, image: true } } },
+      });
+    }),
+  removeMember: protectedProcedure
+    .input(z.object({ projectId: z.string(), userId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      await assertProjectAccess(input.projectId, ctx.auth.user.id, [
+        ProjectRole.OWNER,
+      ]);
+      if (input.userId === ctx.auth.user.id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Owner cannot remove themselves from the project.",
+        });
+      }
+      return prisma.projectMember.delete({
+        where: {
+          projectId_userId: { projectId: input.projectId, userId: input.userId },
+        },
+      });
     }),
 });
