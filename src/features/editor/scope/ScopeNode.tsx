@@ -79,6 +79,8 @@ export const ScopeNode = memo((props: NodeProps<ScopeNodeType>) => {
 
   const nodeData = props.data;
 
+  console.log(props.data.richTextContent);
+
   return (
     <>
       <ScopeDialog
